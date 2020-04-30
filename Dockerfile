@@ -24,7 +24,7 @@ RUN cd /usr/local/tomcat/webapps/ROOT/jbrowse/plugins && \
      bash setup.sh
 
 # groovy needed for scripts
-RUN apt-get install groovy
+RUN apt-get update && apt-get install groovy
 
 # copy in needed jbrowse scripts
 

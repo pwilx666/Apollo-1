@@ -6,19 +6,10 @@ volumes:
 
 
 services:
-  apollo:
-    image: "veupathdb/apollo"
-    volumes:
-      - apollo-data:/data
-    environment:
-      WEBAPOLLO_DB_HOST: postgres
-      WEBAPOLLO_DB_PASSWORD: ${WEBAPOLLO_DB_PASSWORD}
-      CHADO_DB_HOST: postgres
-      CHADO_DB_PASSWORD: ${CHADO_DB_PASSWORD}
-      APOLLO_ADMIN_PASSWORD: ${APOLLO_ADMIN_PASSWORD}
-      WEBAPOLLO_START_POSTGRES: "false"
-    depends_on:
-      - "postgres"
+  oid-proxy:
+    build:
+      context: .
+      dockerfile: DockerFile-httpd
     networks:
       - internal
       - traefik
@@ -31,9 +22,35 @@ services:
       - "traefik.http.routers.apollo_dev.rule=Host(`apollo-dev.apidb.org`)"
       - "traefik.http.routers.apollo_dev.tls=true"
       - "traefik.http.routers.apollo_dev.entrypoints=websecure"
-      - "traefik.http.services.apollo_dev.loadbalancer.server.port=8080"
-
+      - "traefik.http.services.apollo_dev.loadbalancer.server.port=80"
+   
       - "traefik.docker.network=traefik"
+
+  apollo:
+    image: "veupathdb/apollo"
+    volumes:
+      - apollo-data:/data
+      - ./apollo-config.groovy:/usr/local/tomcat/webapps/ROOT/WEB-INF/classes/apollo-config.groovy
+    environment:
+      WEBAPOLLO_DB_HOST: postgres
+      WEBAPOLLO_DB_PASSWORD: ${WEBAPOLLO_DB_PASSWORD}
+      CHADO_DB_HOST: postgres
+      CHADO_DB_PASSWORD: ${CHADO_DB_PASSWORD}
+      APOLLO_ADMIN_PASSWORD: ${APOLLO_ADMIN_PASSWORD}
+      WEBAPOLLO_START_POSTGRES: "false"
+      WEBAPOLLO_REMOTE_USER_AUTH: "true"
+      #WEBAPOLLO_REMOTE_USER_AUTH: "true, \"params\":[\"default_group\": \"remote_users\"]"
+    labels:
+      - "traefik.http.routers.apollo_admin.rule=Host(`apollo-dev.local.apidb.org`)"
+      - "traefik.http.routers.apollo_admin.tls=true"
+      - "traefik.http.routers.apollo_admin.entrypoints=local"
+      - "traefik.docker.network=traefik"
+
+    depends_on:
+      - "postgres"
+    networks:
+      - internal
+      - traefik
 
   postgres:
     image: postgres:9.6
