@@ -28,4 +28,7 @@ RUN apt-get update && apt-get -y install groovy
 
 # copy in needed jbrowse scripts
 
-COPY jbrowse.conf /usr/local/tomcat/webapps/ROOT/jbrowse/
+# copy in apollo-config.groovy (needed for one line, default group for new users)
+COPY apollo_files/apollo-config.groovy /usr/local/tomcat/webapps/ROOT/WEB-INF/classes/apollo-config.groovy
+
+COPY apollo_files/jbrowse.conf /usr/local/tomcat/webapps/ROOT/jbrowse/

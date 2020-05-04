@@ -9,7 +9,7 @@ services:
   oid-proxy:
     build:
       context: .
-      dockerfile: DockerFile-httpd
+      dockerfile: Dockerfile-httpd
     networks:
       - internal
       - traefik
@@ -30,7 +30,7 @@ services:
     image: "veupathdb/apollo"
     volumes:
       - apollo-data:/data
-      - ./apollo-config.groovy:/usr/local/tomcat/webapps/ROOT/WEB-INF/classes/apollo-config.groovy
+      - ./apollo_files/apollo-config.groovy:/usr/local/tomcat/webapps/ROOT/WEB-INF/classes/apollo-config.groovy
     environment:
       WEBAPOLLO_DB_HOST: postgres
       WEBAPOLLO_DB_PASSWORD: ${WEBAPOLLO_DB_PASSWORD}
@@ -56,7 +56,7 @@ services:
     image: postgres:9.6
     volumes:
       - postgres-data:/var/lib/postgresql/data
-      - ./apollo_init.sh:/docker-entrypoint-initdb.d/apollo_init.sh
+      - ./postgres_files/apollo_init.sh:/docker-entrypoint-initdb.d/apollo_init.sh
     environment:
       WEBAPOLLO_DB_HOST: postgres
       WEBAPOLLO_DB_PASSWORD: ${WEBAPOLLO_DB_PASSWORD}
