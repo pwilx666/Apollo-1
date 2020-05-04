@@ -1,0 +1,20 @@
+####################################################
+# Docker file for Apollo httpd proxy
+####################################################
+
+FROM     httpd:2.4
+ENV      DEBIAN_FRONTEND noninteractive
+
+RUN   apt-get -qq update --fix-missing && \
+      apt-get install --yes apt-utils && \
+      apt-get install --no-install-recommends -y ca-certificates curl less links procps ssl-cert tcpdump vim zip
+
+# install OIDC module and assert its presence in expected location
+RUN   apt-get install --yes --fix-missing libapache2-mod-auth-openidc && \
+      ls -l /usr/lib/apache2/modules/mod_auth_openidc.so
+
+# keep stock httpd.conf, just add conf.d directive
+RUN echo "Include conf.d/*.conf" >> /usr/local/apache2/conf/httpd.conf
+
+COPY  apache2-config/  /usr/local/apache2/conf.d/
+
