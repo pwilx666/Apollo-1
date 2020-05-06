@@ -109,6 +109,9 @@ apollo {
 
     google_analytics = System.getenv("WEBAPOLLO_GOOGLE_ANALYTICS_ID") ?: ["UA-62921593-1"]
 
+    // TODO: should be added as env var and put back upstream?
+    native_track_selector_default_on = true
+
     admin {
         username = System.getenv("APOLLO_ADMIN_EMAIL") ?: "admin@local.host"
         password = System.getenv("APOLLO_ADMIN_PASSWORD") ?: "password"
