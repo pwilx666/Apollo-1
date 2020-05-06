@@ -10,6 +10,12 @@ services:
     build:
       context: .
       dockerfile: Dockerfile-httpd
+    environment:
+      OIDCProviderMetadataURL: https://eupathdb.org/oauth/discovery
+      OIDCRedirectURI: http://apollo-dev.apidb.org/annotator/openid/eupathdb
+      OIDCClientID: ${OIDCClientID}
+      OIDCClientSecret: ${OIDCClientSecret}
+      OIDCCryptoPassphrase: ${OIDCCryptoPassphrase}
     networks:
       - internal
       - traefik
