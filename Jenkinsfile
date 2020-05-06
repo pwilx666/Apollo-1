@@ -33,7 +33,7 @@ node ('centos8') {
          }
 
         // build the image
-        sh 'podman build --format=docker -t apollo .'
+        sh 'podman build --format=docker -f Dockerfile-apollo -t apollo .'
 
         // push to dockerhub (for now)
         sh "podman push --creds \"$HUB_LOGIN\" apollo docker://docker.io/veupathdb/apollo:${tag}"
