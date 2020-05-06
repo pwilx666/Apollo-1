@@ -6,7 +6,7 @@ volumes:
 
 
 services:
-  oid-proxy:
+  oauthproxy:
     build:
       context: .
       dockerfile: Dockerfile-httpd
