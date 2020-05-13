@@ -1,0 +1,8 @@
+####################################################
+# Docker file for Apollo postgres
+####################################################
+
+FROM     postgres:9.6
+
+COPY postgres_files/apollo_init.sh /docker-entrypoint-initdb.d/
+

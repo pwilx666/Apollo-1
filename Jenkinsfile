@@ -35,10 +35,12 @@ node ('centos8') {
         // build the images
         sh 'podman build --format=docker -f Dockerfile-apollo -t apollo .'
         sh 'podman build --format=docker -f Dockerfile-httpd -t oauthproxy .'
+        sh 'podman build --format=docker -f Dockerfile-postgres -t postgres-apollo .'
 
         // push to dockerhub (for now)
         sh "podman push --creds \"$HUB_LOGIN\" apollo docker://docker.io/veupathdb/apollo:${tag}"
         sh "podman push --creds \"$HUB_LOGIN\" apollo docker://docker.io/veupathdb/oauthproxy:${tag}"
+        sh "podman push --creds \"$HUB_LOGIN\" apollo docker://docker.io/veupathdb/postgres-apollo:${tag}"
       }
 
     }
