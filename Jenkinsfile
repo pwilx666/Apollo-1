@@ -39,8 +39,8 @@ node ('centos8') {
 
         // push to dockerhub (for now)
         sh "podman push --creds \"$HUB_LOGIN\" apollo docker://docker.io/veupathdb/apollo:${tag}"
-        sh "podman push --creds \"$HUB_LOGIN\" apollo docker://docker.io/veupathdb/oauthproxy:${tag}"
-        sh "podman push --creds \"$HUB_LOGIN\" apollo docker://docker.io/veupathdb/postgres-apollo:${tag}"
+        sh "podman push --creds \"$HUB_LOGIN\" oauthproxy docker://docker.io/veupathdb/oauthproxy:${tag}"
+        sh "podman push --creds \"$HUB_LOGIN\" postgres-apollo docker://docker.io/veupathdb/postgres-apollo:${tag}"
       }
 
     }
