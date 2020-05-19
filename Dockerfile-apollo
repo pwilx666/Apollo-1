@@ -4,15 +4,15 @@ FROM gmod/apollo:stable
 # extract war before tomcat, so we can add plugins to it - probably this should
 # be done in the apollo build, not sure how to extend it though
 
-RUN cd /usr/local/tomcat/webapps && \
-    mkdir /usr/local/tomcat/webapps/ROOT && \
-    unzip /usr/local/tomcat/apollo.war -d /usr/local/tomcat/webapps/ROOT && \
-    rm /usr/local/tomcat/apollo.war 
+RUN cd ${CATALINA_BASE}/webapps && \
+    mkdir ${CATALINA_BASE}/webapps/ROOT && \
+    unzip ${CATALINA_BASE}/apollo.war -d ${CATALINA_BASE}/webapps/ROOT && \
+    rm ${CATALINA_BASE}/apollo.war
 
 
-COPY JBrowse/plugins/ /usr/local/tomcat/webapps/ROOT/jbrowse/plugins/
+COPY JBrowse/plugins/ ${CATALINA_BASE}/webapps/ROOT/jbrowse/plugins/
 
-RUN cd /usr/local/tomcat/webapps/ROOT/jbrowse/plugins && \
+RUN cd ${CATALINA_BASE}/webapps/ROOT/jbrowse/plugins && \
      unzip \*.zip && \
      rm *.zip && \
      mkdir GCContent MultiBigWig TrackScorePlugin SmallRNAPlugin && \
@@ -20,7 +20,7 @@ RUN cd /usr/local/tomcat/webapps/ROOT/jbrowse/plugins && \
      mv jbplugin-smallrna-master/* SmallRNAPlugin && \
      mv jbplugin-trackscores-master/* TrackScorePlugin && \
      mv multibigwig-master/* MultiBigWig && \
-     cd /usr/local/tomcat/webapps/ROOT/jbrowse && \
+     cd ${CATALINA_BASE}/webapps/ROOT/jbrowse && \
      bash setup.sh
 
 # groovy needed for scripts
@@ -29,6 +29,6 @@ RUN apt-get update && apt-get -y install groovy
 # copy in needed jbrowse scripts
 
 # copy in apollo-config.groovy (needed for one line, default group for new users)
-COPY apollo_files/apollo-config.groovy /usr/local/tomcat/webapps/ROOT/WEB-INF/classes/apollo-config.groovy
+COPY apollo_files/apollo-config.groovy ${CATALINA_BASE}/webapps/ROOT/WEB-INF/classes/apollo-config.groovy
 
-COPY apollo_files/jbrowse.conf /usr/local/tomcat/webapps/ROOT/jbrowse/
+COPY apollo_files/jbrowse.conf ${CATALINA_BASE}/webapps/ROOT/jbrowse/
