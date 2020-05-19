@@ -33,7 +33,9 @@ services:
       - "traefik.docker.network=traefik"
 
   apollo:
-    image: "veupathdb/apollo"
+    build:
+      context: .
+      dockerfile: Dockerfile-apollo
     volumes:
       - apollo-data:/data
     environment:
