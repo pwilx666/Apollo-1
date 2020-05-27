@@ -6,10 +6,16 @@ volumes:
 
 
 services:
-  oid-proxy:
+  oauthproxy:
     build:
       context: .
-      dockerfile: DockerFile-httpd
+      dockerfile: Dockerfile-httpd
+    environment:
+      OIDCProviderMetadataURL: https://eupathdb.org/oauth/discovery
+      OIDCRedirectURI: http://apollo-dev.apidb.org/annotator/openid/eupathdb
+      OIDCClientID: ${OIDCClientID}
+      OIDCClientSecret: ${OIDCClientSecret}
+      OIDCCryptoPassphrase: ${OIDCCryptoPassphrase}
     networks:
       - internal
       - traefik
@@ -27,10 +33,11 @@ services:
       - "traefik.docker.network=traefik"
 
   apollo:
-    image: "veupathdb/apollo"
+    build:
+      context: .
+      dockerfile: Dockerfile-apollo
     volumes:
       - apollo-data:/data
-      - ./apollo-config.groovy:/usr/local/tomcat/webapps/ROOT/WEB-INF/classes/apollo-config.groovy
     environment:
       WEBAPOLLO_DB_HOST: postgres
       WEBAPOLLO_DB_PASSWORD: ${WEBAPOLLO_DB_PASSWORD}
@@ -53,10 +60,11 @@ services:
       - traefik
 
   postgres:
-    image: postgres:9.6
+    build:
+      context: .
+      dockerfile: Dockerfile-postgres
     volumes:
       - postgres-data:/var/lib/postgresql/data
-      - ./apollo_init.sh:/docker-entrypoint-initdb.d/apollo_init.sh
     environment:
       WEBAPOLLO_DB_HOST: postgres
       WEBAPOLLO_DB_PASSWORD: ${WEBAPOLLO_DB_PASSWORD}
