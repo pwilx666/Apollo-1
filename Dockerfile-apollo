@@ -1,4 +1,4 @@
-FROM gmod/apollo:stable
+FROM gmod/apollo:latest
 
 #RUN cd /usr/local/tomcat/webapps/root/jbrowse/plugins
 # extract war before tomcat, so we can add plugins to it - probably this should
