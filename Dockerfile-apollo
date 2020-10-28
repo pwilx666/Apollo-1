@@ -26,7 +26,30 @@ RUN cd ${CATALINA_BASE}/webapps/ROOT/jbrowse/plugins && \
 # groovy needed for scripts
 RUN apt-get update && apt-get -y install groovy
 
+# Pulling SAMTools from its repository, unpacking the archive and installing
+ RUN wget https://github.com/samtools/samtools/releases/download/1.2/samtools-1.2.tar.bz2 \
+ && tar jxf samtools-1.2.tar.bz2 \
+ && cd samtools-1.2 \
+ && make \
+ && make install
+
+ # install perl and modules
+ RUN apt-get install -y make
+ RUN apt-get install -y perl
+ RUN apt-get install -y cpanminus
+
+ RUN cpanm -v JSON
+ RUN cpanm -v LWP::Simple
+ RUN cpanm -v File::Copy
+ RUN cpanm -v Getopt::Long
+ RUN cpanm -v Data::Dumper
+ RUN cpanm -v URI::Escape
+# #RUN cpanm -v CBIL::Util 
+
+
 # copy in needed jbrowse scripts
+COPY  JBrowse/dumpConfigurationsForApollo.pl ./
+COPY  JBrowse/makeGroovyAddOrganismCommands.pl ./
 
 # copy in apollo-config.groovy (needed for one line, default group for new users)
 COPY apollo_files/apollo-config.groovy ${CATALINA_BASE}/webapps/ROOT/WEB-INF/classes/apollo-config.groovy
