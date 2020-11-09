@@ -1,3 +1,5 @@
 [submodule "JBrowse"]
 	path = JBrowse
 	url = https://github.com/VEuPathDB/JBrowse.git
+[submodule "Submod"]
+	branch = api-build-49
