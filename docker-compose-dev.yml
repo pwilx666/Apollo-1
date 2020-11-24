@@ -1,0 +1,85 @@
+version: '3.5'
+
+volumes:
+  apollo-data:
+  postgres-data:
+
+
+services:
+  oauthproxy:
+    build:
+      context: .
+      dockerfile: Dockerfile-httpd
+    environment:
+      OIDCProviderMetadataURL: https://eupathdb.org/oauth/discovery
+      OIDCRedirectURI: http://apollo-dev.apidb.org/annotator/openid/eupathdb
+      OIDCClientID: ${OIDCClientID}
+      OIDCClientSecret: ${OIDCClientSecret}
+      OIDCCryptoPassphrase: ${OIDCCryptoPassphrase}
+    networks:
+      - internal
+      - traefik
+    labels:
+      - "traefik.http.middlewares.apollo_dev_redirectscheme.redirectscheme.scheme=https"
+      - "traefik.http.routers.apollo_dev_redirect.rule=Host(`apollo-dev.apidb.org`)"
+      - "traefik.http.routers.apollo_dev_redirect.middlewares=apollo_redirectscheme@docker"
+      - "traefik.http.routers.apollo_dev_redirect.entrypoints=web"
+
+      - "traefik.http.routers.apollo_dev.rule=Host(`apollo-dev.apidb.org`)"
+      - "traefik.http.routers.apollo_dev.tls=true"
+      - "traefik.http.routers.apollo_dev.entrypoints=websecure"
+      - "traefik.http.services.apollo_dev.loadbalancer.server.port=80"
+
+      - "traefik.docker.network=traefik"
+
+  apollo:
+    build:
+      context: .
+      dockerfile: Dockerfile-apollo
+    volumes:
+      - apollo-data:/data
+    environment:
+      WEBAPOLLO_DB_HOST: postgres
+      WEBAPOLLO_DB_PASSWORD: ${WEBAPOLLO_DB_PASSWORD}
+      CHADO_DB_HOST: postgres
+      CHADO_DB_PASSWORD: ${CHADO_DB_PASSWORD}
+      APOLLO_ADMIN_PASSWORD: ${APOLLO_ADMIN_PASSWORD}
+      WEBAPOLLO_START_POSTGRES: "false"
+      WEBAPOLLO_REMOTE_USER_AUTH: "true"
+      #WEBAPOLLO_REMOTE_USER_AUTH: "true, \"params\":[\"default_group\": \"remote_users\"]"
+    labels:
+      - "traefik.http.routers.apollo_admin.rule=Host(`apollo-dev.local.apidb.org`)"
+      - "traefik.http.routers.apollo_admin.tls=true"
+      - "traefik.http.routers.apollo_admin.entrypoints=local"
+      - "traefik.docker.network=traefik"
+
+    depends_on:
+      - "postgres"
+    networks:
+      - internal
+      - traefik
+
+  postgres:
+    build:
+      context: .
+      dockerfile: Dockerfile-postgres
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      WEBAPOLLO_DB_HOST: postgres
+      WEBAPOLLO_DB_PASSWORD: ${WEBAPOLLO_DB_PASSWORD}
+      CHADO_DB_HOST: postgres
+      CHADO_DB_PASSWORD: ${CHADO_DB_PASSWORD}
+      WEBAPOLLO_DB_NAME: apollo
+      WEBAPOLLO_DB_USERNAME: apollo
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    labels:
+      - "traefik.enable=false"
+    networks:
+      - internal
+
+networks:
+  internal:
+    external: false
+  traefik:
+    external: true
