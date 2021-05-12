@@ -15,11 +15,10 @@ COPY JBrowse/plugins/ ${CATALINA_BASE}/webapps/ROOT/jbrowse/plugins/
 RUN cd ${CATALINA_BASE}/webapps/ROOT/jbrowse/plugins && \
      unzip \*.zip && \
      rm *.zip && \
-     mkdir GCContent MultiBigWig TrackScorePlugin SmallRNAPlugin && \
+     mkdir GCContent TrackScorePlugin SmallRNAPlugin && \
      mv gccontent-master/* GCContent/ && \
      mv jbplugin-smallrna-master/* SmallRNAPlugin && \
      mv jbplugin-trackscores-master/* TrackScorePlugin && \
-     mv multibigwig-master/* MultiBigWig && \
      cd ${CATALINA_BASE}/webapps/ROOT/jbrowse && \
      bash setup.sh
 
