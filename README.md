@@ -10,4 +10,7 @@ This repository contains customimzations to the Apollo (https://github.com/GMOD/
 There is a Jenkinsfile to facilitate building these images, given an appropriately configured jenkins.
 
 # Traefik
-Routing to the containers is done through Traefik (https://traefik.io/traefik/) Which allows flexibility for container access.  For example, all public requests route through the oauth proxy, but you can still route directly to apollo with apropriate traefik rules.  This is useful for providing access directly to apollo, notably for api access which should bypass oauth. (Examples coming soon)
+Routing to the containers is done through Traefik (https://traefik.io/traefik/) Which allows flexibility for container access.  For example, all public requests route through the oauth proxy, but you can still route directly to apollo with apropriate traefik rules.  This is useful for providing access directly to apollo, notably for api access which should bypass oauth. (Examples coming soon)  An example setup for typical veupathdb usage can be found at https://github.com/VEuPathDB/docker-traefik
+
+# Development
+After setting up docker and docker-compose, A local apollo instance can be brought up by cloning this repo, and running `docker-compose up -d`.  If you need to work on building images themselves, you can use docker-compose-dev.yml as an overlay with `docker-compose -f docker-compose.yml -f docker-compose-dev.yml up -d`.  This will build the images from the Dockerfile's in this repository.
