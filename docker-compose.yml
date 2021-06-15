@@ -4,15 +4,12 @@ volumes:
   apollo-data:
   postgres-data:
 
-
 services:
   oauthproxy:
-    build:
-      context: .
-      dockerfile: Dockerfile-httpd
+    image: veupathdb/oauthproxy:${OAUTH_TAG:-latest}
     environment:
-      OIDCProviderMetadataURL: https://eupathdb.org/oauth/discovery
-      OIDCRedirectURI: http://apollo-dev.apidb.org/annotator/openid/eupathdb
+      OIDCProviderMetadataURL: ${OIDCProviderMetadataURL:-https://eupathdb.org/oauth/discovery}
+      OIDCRedirectURI: ${OIDCRedirectURI:-http://apollo-dev.apidb.org/annotator/openid/eupathdb}
       OIDCClientID: ${OIDCClientID}
       OIDCClientSecret: ${OIDCClientSecret}
       OIDCCryptoPassphrase: ${OIDCCryptoPassphrase}
@@ -20,61 +17,60 @@ services:
       - internal
       - traefik
     labels:
-      - "traefik.http.middlewares.apollo_dev_redirectscheme.redirectscheme.scheme=https"
-      - "traefik.http.routers.apollo_dev_redirect.rule=Host(`apollo-dev.apidb.org`)"
-      - "traefik.http.routers.apollo_dev_redirect.middlewares=apollo_redirectscheme@docker"
-      - "traefik.http.routers.apollo_dev_redirect.entrypoints=web"
-   
-      - "traefik.http.routers.apollo_dev.rule=Host(`apollo-dev.apidb.org`)"
-      - "traefik.http.routers.apollo_dev.tls=true"
-      - "traefik.http.routers.apollo_dev.entrypoints=websecure"
-      - "traefik.http.services.apollo_dev.loadbalancer.server.port=80"
-   
       - "traefik.docker.network=traefik"
+      - "traefik.http.routers.${ROUTER:-apollo-dev}.rule=Host(`${DOMAIN:-apollo-dev.apidb.org}`)"
+      - "traefik.http.routers.${ROUTER:-apollo-dev}.tls=true"
+      - "traefik.http.routers.${ROUTER:-apollo-dev}.entrypoints=websecure"
+      - "traefik.http.services.${ROUTER:-apollo-dev}.loadbalancer.server.port=${PROXY_PORT:-80}"
+      - "com.centurylinklabs.watchtower.enable=${OAUTH_WATCHTOWER:-false}"
 
   apollo:
-    build:
-      context: .
-      dockerfile: Dockerfile-apollo
+    image: veupathdb/apollo:${APOLLO_TAG:-latest}
     volumes:
       - apollo-data:/data
     environment:
-      WEBAPOLLO_DB_HOST: postgres
+      WEBAPOLLO_DB_HOST: ${WEBAPOLLO_DB_HOST:-postgres}
       WEBAPOLLO_DB_PASSWORD: ${WEBAPOLLO_DB_PASSWORD}
-      CHADO_DB_HOST: postgres
+      CHADO_DB_HOST: ${CHADO_DB_HOST:-postgres}
       CHADO_DB_PASSWORD: ${CHADO_DB_PASSWORD}
       APOLLO_ADMIN_PASSWORD: ${APOLLO_ADMIN_PASSWORD}
-      WEBAPOLLO_START_POSTGRES: "false"
-      WEBAPOLLO_REMOTE_USER_AUTH: "true"
-      #WEBAPOLLO_REMOTE_USER_AUTH: "true, \"params\":[\"default_group\": \"remote_users\"]"
+      WEBAPOLLO_START_POSTGRES: ${WEBAPOLLO_START_POSTGRES:-false}
+      WEBAPOLLO_REMOTE_USER_AUTH: ${WEBAPOLLO_REMOTE_USER_AUTH:-false}
     labels:
-      - "traefik.http.routers.apollo_admin.rule=Host(`apollo-dev.local.apidb.org`)"
-      - "traefik.http.routers.apollo_admin.tls=true"
-      - "traefik.http.routers.apollo_admin.entrypoints=local"
       - "traefik.docker.network=traefik"
+      - "traefik.http.middlewares.ipwhitelist-${ROUTER:-apollo-dev}.ipwhitelist.sourcerange=${IPWHITELIST}"
 
+      - "traefik.http.routers.admin-${ROUTER:-apollo-dev}.rule=Host(`${ADMIN_DOMAIN:-apollo-dev.local.apidb.org}`)"
+      - "traefik.http.routers.admin-${ROUTER:-apollo-dev}.tls=true"
+      - "traefik.http.routers.admin-${ROUTER:-apollo-dev}.entrypoints=local"
+
+      - "traefik.http.routers.api-${ROUTER:-apollo-dev}.middlewares=ipwhitelist-${ROUTER:-apollo-dev}"
+      - "traefik.http.routers.api-${ROUTER:-apollo-dev}.rule=Host(`${API_DOMAIN:-apollo-dev-api.local.apidb.org}`)"
+      - "traefik.http.routers.api-${ROUTER:-apollo-dev}.tls=true"
+      - "traefik.http.routers.api-${ROUTER:-apollo-dev}.entrypoints=websecure"
+      - "traefik.http.services.api-${ROUTER:-apollo-dev}.loadbalancer.server.port=${API_PORT:-8080}"
+      - "com.centurylinklabs.watchtower.enable=${APOLLO_WATCHTOWER:-false}"
     depends_on:
-      - "postgres"
+      - postgres
     networks:
       - internal
       - traefik
 
   postgres:
-    build:
-      context: .
-      dockerfile: Dockerfile-postgres
+    image: veupathdb/postgres-apollo:${POSTGRES_TAG:-latest}
     volumes:
       - postgres-data:/var/lib/postgresql/data
     environment:
-      WEBAPOLLO_DB_HOST: postgres
+      WEBAPOLLO_DB_HOST: ${WEBAPOLLO_DB_HOST:-postgres}
       WEBAPOLLO_DB_PASSWORD: ${WEBAPOLLO_DB_PASSWORD}
-      CHADO_DB_HOST: postgres
+      CHADO_DB_HOST: ${CHADO_DB_HOST:-postgres}
       CHADO_DB_PASSWORD: ${CHADO_DB_PASSWORD}
-      WEBAPOLLO_DB_NAME: apollo
-      WEBAPOLLO_DB_USERNAME: apollo
+      WEBAPOLLO_DB_NAME: ${WEBAPOLLO_DB_NAME:-apollo}
+      WEBAPOLLO_DB_USERNAME: ${WEBAPOLLO_DB_USERNAME:-apollo}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     labels:
       - "traefik.enable=false"
+      - "com.centurylinklabs.watchtower.enable=${POSTGRES_WATCHTOWER:-false}"
     networks:
       - internal
 
@@ -83,7 +79,3 @@ networks:
     external: false
   traefik:
     external: true
-
-
-
-
