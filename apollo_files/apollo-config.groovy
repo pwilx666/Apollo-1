@@ -101,6 +101,22 @@ apollo {
     get_translation_code = System.getenv("WEBAPOLLO_TRANSLATION_TABLE") ? System.getenv("WEBAPOLLO_TRANSLATION_TABLE").toInteger() : 1
 
     fa_to_twobit_exe = "/usr/local/bin/faToTwoBit" // automatically loaded // https://genome.ucsc.edu/goldenPath/help/blatSpec.html
+    sequence_search_tools = [
+      blat_nuc : [
+          search_exe : "/usr/local/bin/blat",
+          search_class: "org.bbop.apollo.sequence.search.blat.BlatCommandLineNucleotideToNucleotide",
+          name    : "Blat nucleotide",
+          params   : "",
+          tmp_dir: "/data/apollo_data/twoBit/"
+      ],
+      blat_prot: [
+          search_exe : "/usr/local/bin/blat",
+          search_class: "org.bbop.apollo.sequence.search.blat.BlatCommandLineProteinToNucleotide",
+          name    : "Blat protein",
+          params   : "",
+          tmp_dir: "/data/apollo_data/twoBit/"
+      ]
+  ]
 
     // TODO: should come from config or via preferences database
     splice_donor_sites = System.getenv("WEBAPOLLO_SPLICE_DONOR_SITES") ? System.getenv("WEBAPOLLO_SPLICE_DONOR_SITES").split(",") : ["GT"]
